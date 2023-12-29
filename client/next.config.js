@@ -6,7 +6,11 @@ const nextConfig = {
             {
                 source: '/api/expense',
                 destination: 'http://localhost:8080/api/expense',
-            }
+            },
+            {
+                source: '/api/user',
+                destination: 'http://localhost:8080/api/user',
+            },
         ];
     },
 };

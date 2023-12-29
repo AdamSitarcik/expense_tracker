@@ -1,67 +1,47 @@
-import GoogleProvider from 'next-auth/providers/google';
+import CredentialsProvider from 'next-auth/providers/credentials';
 import { NextAuthOptions, getServerSession } from 'next-auth';
+import { hash } from 'bcrypt';
 
 export const authOptions: NextAuthOptions = {
     providers: [
-        GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID!,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        CredentialsProvider({
+            name: 'Credentials',
+            credentials: {
+                email: {
+                    label: 'Username',
+                    type: 'text',
+                    placeholder: 'jsmith',
+                },
+                password: { label: 'Password', type: 'password' },
+            },
+            async authorize(credentials, req) {
+                const { email, password } = credentials as {
+                    email: string;
+                    password: string;
+                };
+
+                try {
+                    const res = await fetch('/api/user', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            email,
+                            passwordHash: await hash(password, 12),
+                        }),
+                    });
+
+                    const user = await res.json();
+                    
+                    if (res.ok && user) {
+                        return user;
+                    } else return null;
+                } catch (error) {
+                    console.log(error);
+                    throw new Error('Something went wrong');
+                }
+            },
         }),
     ],
-    pages: {
-        signIn: '/sign-in',
-    },
-    callbacks: {
-        session({ token, session }) {
-            if (token) {
-                session.user.id = token.id;
-                session.user.email = token.email;
-                // session.user?.name = token.name;
-                // session.user?.username = token.username;
-            }
-
-            return session;
-        },
-        async jwt({ token, user }) {
-            const dbUser = await fetch('/api/user', {
-                method: 'GET',
-                body: user.id,
-            });
-
-            if (!dbUser) {
-                if (user) {
-                    token.id = user.id;
-                }
-                return token;
-            }
-
-            return {
-                id: dbUser.id,
-                email: dbUser.email,
-                name: dbUser?.name,
-                username: dbUser?.username,
-            };
-        },
-        signIn({ user }) {
-            console.log(user.id);
-            //put a post request to the API with user data -> there find it in DB; if it exist just return, else save it to DB
-            fetch('/api/sign-in', {
-                method: 'POST',
-                body: JSON.stringify({ user }),
-            });
-
-            return true;
-        },
-        redirect() {
-            return '/';
-        },
-    },
     session: {
         strategy: 'jwt',
     },
 };
-
-// export async function getCurrentSession() {
-//     const session = await getServerSession(authOptions);
-//     return session;
-// }
