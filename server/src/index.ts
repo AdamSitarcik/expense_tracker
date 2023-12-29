@@ -1,5 +1,5 @@
-import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import express from 'express';
 
 const PORT = 8080;
 
@@ -8,19 +8,27 @@ const prisma = new PrismaClient();
 
 app.use(express.json());
 
-// Test
-app.get('/api', (req, res) => {
-    res.json({ message: 'Hello world' });
+// user
+app.get('/api/user', (req, res) => {
+    console.log(req.body);
 });
-
 app.post('/api/user');
 app.patch('/api/user');
 app.delete('/api/user');
 
 // Expenses API
-app.get('/api/expense');
+app.get('/api/expense', async (req, res) => {
+    console.log(req.body);
+
+    const expenses = await prisma.expense.findMany();
+
+    res.json({ expenses });
+});
+
 app.post('/api/expense', async (req, res) => {
-    const { price, categoryId } = req.body;
+    const { price } = req.body;
+
+    await prisma.expense.create({ data: { price: price } });
 
     res.json({ message: 'OK' });
 });
