@@ -1,6 +1,6 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { NextAuthOptions, getServerSession } from 'next-auth';
-import { hash } from 'bcrypt';
+import bcrypt from 'bcrypt';
 
 export const authOptions: NextAuthOptions = {
     providers: [
@@ -25,7 +25,7 @@ export const authOptions: NextAuthOptions = {
                         method: 'POST',
                         body: JSON.stringify({
                             email,
-                            passwordHash: await hash(password, 12),
+                            passwordHash: await bcrypt.hash(password, await bcrypt.genSalt(12)),
                         }),
                     });
 
