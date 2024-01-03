@@ -14,8 +14,6 @@ datasource db {
 model User {
   id       String  @id @default(cuid())
   email    String  @unique
-  name     String?
-  username String? @unique
 
   expenses Expense[]
 }
@@ -23,7 +21,9 @@ model User {
 model Expense {
   id     String @id @default(cuid())
   price  String
-  userId String @unique
+  userId String 
 
   user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
 }
