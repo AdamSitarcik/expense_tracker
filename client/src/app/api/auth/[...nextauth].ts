@@ -3,12 +3,13 @@ import { NextAuthOptions, getServerSession } from 'next-auth';
 import bcrypt from 'bcrypt';
 
 export const authOptions: NextAuthOptions = {
+    // secret: process.env.NEXTAUTH_SECRET,
     providers: [
         CredentialsProvider({
             name: 'Credentials',
             credentials: {
                 email: {
-                    label: 'Username',
+                    label: 'Email',
                     type: 'text',
                     placeholder: 'jsmith',
                 },
@@ -23,14 +24,18 @@ export const authOptions: NextAuthOptions = {
                 try {
                     const res = await fetch('/api/user', {
                         method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             email,
-                            passwordHash: await bcrypt.hash(password, await bcrypt.genSalt(12)),
+                            passwordHash: await bcrypt.hash(
+                                password,
+                                await bcrypt.genSalt(12)
+                            ),
                         }),
                     });
 
                     const user = await res.json();
-                    
+
                     if (res.ok && user) {
                         return user;
                     } else return null;
@@ -44,4 +49,7 @@ export const authOptions: NextAuthOptions = {
     session: {
         strategy: 'jwt',
     },
+    pages: {
+        signIn: '/sign-in'
+    }
 };

@@ -29,12 +29,17 @@ app.post('/api/user', async (req, res) => {
             res.json({
                 message: 'User with this email already exists',
                 userExists,
+                existingUser: true,
             }).status(200);
         } else {
             const newUser = await prisma.user.create({
                 data: { email },
             });
-            res.json({ message: 'New user created', newUser }).status(201);
+            res.json({
+                message: 'New user created',
+                newUser,
+                existingUser: false,
+            }).status(201);
         }
     } catch (error) {
         console.log(error);
