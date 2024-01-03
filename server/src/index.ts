@@ -9,28 +9,72 @@ const prisma = new PrismaClient();
 app.use(express.json());
 
 // user
-app.get('/api/user', (req, res) => {
-    console.log(req.body);
+app.get('/api/user', async (req, res) => {
+    const { email } = req.body;
+
+    const user = await prisma.user.findUnique({
+        include: { expenses: true },
+        where: { email: email },
+    });
+    res.json({ user });
 });
-app.post('/api/user');
+
+app.post('/api/user', async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const userExists = await prisma.user.findUnique({ where: { email } });
+
+        if (userExists) {
+            res.json({
+                message: 'User with this email already exists',
+                userExists,
+            }).status(200);
+        } else {
+            const newUser = await prisma.user.create({
+                data: { email },
+            });
+            res.json({ message: 'New user created', newUser }).status(201);
+        }
+    } catch (error) {
+        console.log(error);
+        throw new Error('Something went wrong');
+    }
+});
+
 app.patch('/api/user');
 app.delete('/api/user');
 
 // Expenses API
 app.get('/api/expense', async (req, res) => {
-    console.log(req.body);
-
     const expenses = await prisma.expense.findMany();
-
     res.json({ expenses });
 });
 
 app.post('/api/expense', async (req, res) => {
-    const { price } = req.body;
+    const { price, email } = req.body;
 
-    await prisma.expense.create({ data: { price: price } });
+    let userId;
 
-    res.json({ message: 'OK' });
+    try {
+        const user = await prisma.user.findUnique({ where: { email } });
+        userId = user?.id;
+    } catch (error) {
+        console.log(error);
+        throw new Error('User not found');
+    }
+
+    try {
+        if (userId) {
+            await prisma.expense.create({
+                data: { price: price, userId: userId },
+            });
+            res.json({ message: 'OK' }).status(200);
+        }
+    } catch (error) {
+        console.log(error);
+        throw new Error('Something went wrong');
+    }
 });
 app.patch('/api/expense');
 app.delete('/api/expense');
