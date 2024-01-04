@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import express from 'express';
+import bcrypt from 'bcrypt';
 
 const PORT = 8080;
 
@@ -19,31 +20,44 @@ app.get('/api/user', async (req, res) => {
     res.json({ user });
 });
 
+app.get('/api/all-users', async (req, res) => {
+    const allUsers = await prisma.user.findMany({});
+    res.json({ allUsers });
+});
+
 app.post('/api/user', async (req, res) => {
-    const { email } = req.body;
+    const { email, password } = req.body;
 
     try {
         const userExists = await prisma.user.findUnique({ where: { email } });
 
         if (userExists) {
-            res.json({
-                message: 'User with this email already exists',
-                userExists,
-                existingUser: true,
-            }).status(200);
+            const validPassword = await bcrypt.compare(
+                password,
+                userExists.password
+            );
+            if (validPassword) {
+                res.json({
+                    message: 'User with this email already exists',
+                    user: userExists,
+                    existingUser: true,
+                }).status(200);
+            } else {
+                res.json('Invalid credentials').status(401);
+            }
         } else {
             const newUser = await prisma.user.create({
-                data: { email },
+                data: { email, password },
             });
+
             res.json({
                 message: 'New user created',
-                newUser,
+                user: newUser,
                 existingUser: false,
             }).status(201);
         }
     } catch (error) {
         console.log(error);
-        throw new Error('Something went wrong');
     }
 });
 
