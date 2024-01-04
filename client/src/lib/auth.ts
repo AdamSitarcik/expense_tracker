@@ -29,7 +29,7 @@ export const authOptions: NextAuthOptions = {
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 email,
-                                passwordHash: await bcrypt.hash(
+                                password: await bcrypt.hash(
                                     password,
                                     await bcrypt.genSalt(12)
                                 ),
@@ -44,7 +44,6 @@ export const authOptions: NextAuthOptions = {
                     } else return null;
                 } catch (error) {
                     console.log(error);
-                    throw new Error('Something went wrong');
                 }
             },
         }),
