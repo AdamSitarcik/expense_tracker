@@ -1,9 +1,9 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { NextAuthOptions, getServerSession } from 'next-auth';
+import { NextAuthOptions } from 'next-auth';
 import bcrypt from 'bcrypt';
 
 export const authOptions: NextAuthOptions = {
-    // secret: process.env.NEXTAUTH_SECRET,
+    secret: process.env.NEXTAUTH_SECRET,
     providers: [
         CredentialsProvider({
             name: 'Credentials',
@@ -22,17 +22,20 @@ export const authOptions: NextAuthOptions = {
                 };
 
                 try {
-                    const res = await fetch('/api/user', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            email,
-                            passwordHash: await bcrypt.hash(
-                                password,
-                                await bcrypt.genSalt(12)
-                            ),
-                        }),
-                    });
+                    const res = await fetch(
+                        process.env.SERVER_URL + '/api/user',
+                        {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                email,
+                                passwordHash: await bcrypt.hash(
+                                    password,
+                                    await bcrypt.genSalt(12)
+                                ),
+                            }),
+                        }
+                    );
 
                     const user = await res.json();
 
@@ -49,7 +52,12 @@ export const authOptions: NextAuthOptions = {
     session: {
         strategy: 'jwt',
     },
-    pages: {
-        signIn: '/sign-in'
-    }
+    callbacks: {
+        async redirect() {
+            return '/';
+        },
+    },
+    // pages: {
+    //     signIn: '/sign-in',
+    // },
 };
