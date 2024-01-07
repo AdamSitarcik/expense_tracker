@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { Logo } from './icons';
 import { buttonVariants } from './button';
 import { cn } from '@/lib/utils';
+import { signIn } from 'next-auth/react';
+import { LoginBtn } from './loginBtn';
 
 export const Navbar = async () => {
     const user = await getCurrentUser();
@@ -19,14 +21,7 @@ export const Navbar = async () => {
                         Expenser
                     </p>
                 </Link>
-                <button
-                    className={cn(
-                        buttonVariants({ variant: 'outline', size: 'default' }),
-                        'hidden sm:block w-26'
-                    )}
-                >
-                    Login
-                </button>
+                <LoginBtn />
             </div>
         </div>
     );
