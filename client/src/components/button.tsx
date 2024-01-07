@@ -8,7 +8,7 @@ const buttonVariants = cva(
                 default:
                     'bg-primary text-primary-foreground hover:bg-primary/90',
                 secondary:
-                    'bg-secondary text-secondary-foreground hover:bg-secondary/90',
+                    'bg-secondary text-secondary-foreground hover:bg-accent/70 hover:border-accent border',
                 outline:
                     'border border-accent hover:bg-accent/60 text-accent-foreground',
             },
