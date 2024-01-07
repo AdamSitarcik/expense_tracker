@@ -13,9 +13,9 @@ const buttonVariants = cva(
                     'border border-accent hover:bg-accent/60 text-accent-foreground',
             },
             size: {
-                default: 'h-10 py-2 px-4',
-                sm: 'h-9 px-3 rounded-md',
-                lg: 'h-11 px-8 rounded-md',
+                default: 'h-10 py-2 px-4 w-32 h-10',
+                sm: 'h-9 px-3 rounded-md w-26 h-9',
+                lg: 'h-11 px-8 rounded-md w-36 h-11',
             },
         },
         defaultVariants: {
