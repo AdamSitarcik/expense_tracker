@@ -10,7 +10,10 @@ export const Navbar = async () => {
     return (
         <div className='top-0 inset-x-0 h-18 z-10 py-2 bg-background text-foreground px-8 '>
             <div className='container w-full h-full flex items-center justify-center  sm:justify-between gap-2'>
-                <Link href='/' className='flex gap-2 items-center flex-col sm:flex-row'>
+                <Link
+                    href='/'
+                    className='flex gap-2 items-center flex-col sm:flex-row'
+                >
                     <Logo className='h-16 w-16' />
                     <p className=' text-zinc-700 text-md font-medium  text-2xl'>
                         Expenser
@@ -18,8 +21,8 @@ export const Navbar = async () => {
                 </Link>
                 <button
                     className={cn(
-                        buttonVariants({ variant: 'secondary', size: 'lg' }),
-                        'hidden sm:block'
+                        buttonVariants({ variant: 'outline', size: 'default' }),
+                        'hidden sm:block w-26'
                     )}
                 >
                     Login
