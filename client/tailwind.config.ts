@@ -26,7 +26,7 @@ const config: Config = {
                 primary: { DEFAULT: '#1e293b', foreground: '#f1f5f9' },
                 secondary: { DEFAULT: '#e2e8f0', foreground: '#0f172a' },
                 accent: { DEFAULT: '#cbd5e1', foreground: '#1e293b' },
-                muted: {DEFAULT: '#94a3b8'}
+                muted: {DEFAULT: '#64748b'}
             },
             borderRadius: {
                 lg: `var(--radius)`,
