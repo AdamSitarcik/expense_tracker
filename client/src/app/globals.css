@@ -22,3 +22,7 @@
 * {
     box-sizing: border-box;
 }
+
+input {
+    @apply border border-accent rounded-md p-1.5 mb-2 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 outline-slate-400
+}
