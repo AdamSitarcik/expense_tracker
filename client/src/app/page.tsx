@@ -24,7 +24,7 @@ const Page: NextPage = async () => {
                 </p>
                 <div className='flex gap-3'>
                     <Link
-                        href='/sign-in'
+                        href='/register'
                         className={cn(buttonVariants({ size: 'lg' }), 'w-36')}
                     >
                         Get started
