@@ -3,9 +3,9 @@
 import { buttonVariants } from '@/components/button';
 import { HomeBtn } from '@/components/homeBtn';
 import { Logo } from '@/components/icons';
-import { cn } from '@/lib/utils';
+import { cn, debounced } from '@/lib/utils';
 import type { NextPage } from 'next';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const Page: NextPage = () => {
     const [emailValue, setEmailValue] = useState('');
@@ -14,6 +14,10 @@ const Page: NextPage = () => {
     const [passwordsMatch, setPasswordsMatch] = useState(true);
     const [validPassword, setValidPassword] = useState(false);
     const [validEmail, setValidEmail] = useState(false);
+
+    const optimisedDebounce = (func: any, wait: number) => {
+        return useMemo(() => debounced(func, wait), []);
+    };
 
     const validatePassword = (password: string) => {
         if (password.length > 0)
@@ -24,6 +28,7 @@ const Page: NextPage = () => {
             );
         else setValidPassword(false);
     };
+    const debouncedValidatePassword = optimisedDebounce(validatePassword, 1000);
 
     const validateEmail = (email: string) => {
         if (email.length > 0)
@@ -34,12 +39,21 @@ const Page: NextPage = () => {
             );
         else setValidEmail(false);
     };
+    const debouncedValidateEmail = optimisedDebounce(validateEmail, 1000);
 
     useEffect(() => {
         if (passwordValue.length > 0)
             setPasswordsMatch(passwordValue == confirmPasswordValue);
         else setPasswordsMatch(false);
     }, [passwordValue, confirmPasswordValue]);
+
+    const showWarning = (defaultCondition: boolean, condition: boolean) => {
+        if (defaultCondition) return false;
+
+        return debounced(() => {
+            return condition;
+        }, 1000);
+    };
 
     return (
         <div className='container w-full h-screen flex flex-col justify-center items-center'>
@@ -80,7 +94,7 @@ const Page: NextPage = () => {
                         value={passwordValue}
                         onChange={(e) => {
                             setPasswordValue(e.target.value);
-                            validatePassword(passwordValue);
+                            validatePassword(e.target.value);
                         }}
                         className={
                             passwordValue.length > 0 && !passwordsMatch
