@@ -9,11 +9,11 @@ export const authOptions: NextAuthOptions = {
             name: 'Credentials',
             credentials: {
                 email: {
-                    label: 'Email',
+                    label: 'email',
                     type: 'text',
                     placeholder: 'jsmith',
                 },
-                password: { label: 'Password', type: 'password' },
+                password: { label: 'password', type: 'password' },
             },
             async authorize(credentials, req) {
                 const { email, password } = credentials as {
