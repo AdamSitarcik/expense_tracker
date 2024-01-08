@@ -1,19 +1,26 @@
+'use client';
+
 import { buttonVariants } from '@/components/button';
 import { HomeBtn } from '@/components/homeBtn';
 import { Logo } from '@/components/icons';
-import { getCurrentUser } from '@/lib/session';
 import { cn } from '@/lib/utils';
 import type { NextPage } from 'next';
-import { redirect } from 'next/navigation';
+import { useState } from 'react';
 
-const Page: NextPage = async () => {
-    const user = await getCurrentUser();
+const Page: NextPage = () => {
+    const [emailValue, setEmailValue] = useState('');
+    const [passwordValue, setPasswordValue] = useState('');
+    const [validEmail, setValidEmail] = useState(false);
 
-    console.log(user);
-
-    if (user?.email) {
-        redirect('/');
-    }
+    const validateEmail = (email: string) => {
+        if (email.length > 0)
+            setValidEmail(
+                /^[a-zA-Z][a-zA-Z0-9._-]*@[a-zA-Z0-9._-]+\.[a-zA-Z]{2,5}$/.test(
+                    email
+                )
+            );
+        else setValidEmail(false);
+    };
 
     return (
         <div className='container w-full h-screen flex flex-col justify-center items-center'>
@@ -29,14 +36,37 @@ const Page: NextPage = async () => {
                         type='email'
                         id='email'
                         placeholder='name@example.com'
+                        value={emailValue}
+                        onChange={(e) => {
+                            setEmailValue(e.target.value);
+                            validateEmail(e.target.value);
+                        }}
+                        className={
+                            emailValue.length > 0 && !validEmail
+                                ? 'border-red-600 focus-visible:outline-red-600 focus-visible:ring-red-300'
+                                : ''
+                        }
+                        required
                     />
+                    <p className='text-red-500 mb-1'>
+                        {emailValue.length > 0 && !validEmail
+                            ? 'Invalid email address'
+                            : ''}
+                    </p>
+
                     <label htmlFor='password'>Password</label>
-                    <input type='password' id='password' />
+                    <input
+                        type='password'
+                        id='password'
+                        value={passwordValue}
+                        onChange={(e) => setPasswordValue(e.target.value)}
+                    />
                     <button
                         className={cn(
                             buttonVariants(),
                             'w-full text-xl py-6 mt-1'
                         )}
+                        disabled={!(passwordValue.length > 0 && validEmail)}
                     >
                         Sign in with email
                     </button>

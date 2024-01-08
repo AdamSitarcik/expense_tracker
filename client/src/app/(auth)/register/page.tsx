@@ -58,7 +58,7 @@ const Page: NextPage = () => {
                         value={emailValue}
                         onChange={(e) => {
                             setEmailValue(e.target.value);
-                            validateEmail(emailValue);
+                            validateEmail(e.target.value);
                         }}
                         className={
                             emailValue.length > 0 && !validEmail
@@ -126,6 +126,9 @@ const Page: NextPage = () => {
                             buttonVariants(),
                             'w-full text-xl py-6 mt-1'
                         )}
+                        disabled={
+                            !(validEmail && validPassword && passwordsMatch)
+                        }
                     >
                         Create new account
                     </button>
