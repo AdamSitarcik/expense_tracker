@@ -7,7 +7,7 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 
 const Page: NextPage = async () => {
-    const user = getCurrentUser();
+    const user = await getCurrentUser();
 
     return (
         <div className='overflow-hidden'>
