@@ -60,6 +60,7 @@ const Page: NextPage = () => {
                         id='password'
                         value={passwordValue}
                         onChange={(e) => setPasswordValue(e.target.value)}
+                        required
                     />
                     <button
                         className={cn(
