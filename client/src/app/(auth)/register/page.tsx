@@ -3,9 +3,15 @@
 import { buttonVariants } from '@/components/button';
 import { HomeBtn } from '@/components/homeBtn';
 import { Logo } from '@/components/icons';
-import { cn, debounced } from '@/lib/utils';
+import { cn, debounce } from '@/lib/utils';
 import type { NextPage } from 'next';
-import { useEffect, useMemo, useState } from 'react';
+import {
+    Dispatch,
+    SetStateAction,
+    useCallback,
+    useEffect,
+    useState,
+} from 'react';
 
 const Page: NextPage = () => {
     const [emailValue, setEmailValue] = useState('');
@@ -14,21 +20,20 @@ const Page: NextPage = () => {
     const [passwordsMatch, setPasswordsMatch] = useState(true);
     const [validPassword, setValidPassword] = useState(false);
     const [validEmail, setValidEmail] = useState(false);
-
-    const optimisedDebounce = (func: any, wait: number) => {
-        return useMemo(() => debounced(func, wait), []);
-    };
+    const [showEmailWarning, setShowEmailWarning] = useState(false);
+    const [showPasswordWarning, setShowPasswordWarning] = useState(false);
+    const [showPasswordLengthWarning, setShowPasswordLengthWarning] =
+        useState(false);
 
     const validatePassword = (password: string) => {
         if (password.length > 0)
             setValidPassword(
-                /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{7,}$/.test(
+                /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/.test(
                     password
                 )
             );
         else setValidPassword(false);
     };
-    const debouncedValidatePassword = optimisedDebounce(validatePassword, 1000);
 
     const validateEmail = (email: string) => {
         if (email.length > 0)
@@ -39,21 +44,50 @@ const Page: NextPage = () => {
             );
         else setValidEmail(false);
     };
-    const debouncedValidateEmail = optimisedDebounce(validateEmail, 1000);
 
     useEffect(() => {
-        if (passwordValue.length > 0)
-            setPasswordsMatch(passwordValue == confirmPasswordValue);
-        else setPasswordsMatch(false);
+        setPasswordsMatch(passwordValue == confirmPasswordValue);
     }, [passwordValue, confirmPasswordValue]);
 
-    const showWarning = (defaultCondition: boolean, condition: boolean) => {
-        if (defaultCondition) return false;
+    //function to delay displaying of warnings
+    const showWarning = useCallback(
+        debounce(
+            (
+                defaultCond: boolean,
+                mainCondition: boolean,
+                setter: Dispatch<SetStateAction<boolean>>
+            ) => {
+                if (defaultCond) {
+                    setter(false);
+                } else {
+                    setter(mainCondition);
+                }
+            },
+            1000
+        ),
+        []
+    );
 
-        return debounced(() => {
-            return condition;
-        }, 1000);
-    };
+    useEffect(() => {
+        showWarning(
+            emailValue.length == 0,
+            emailValue.length > 0 && !validEmail,
+            setShowEmailWarning
+        );
+    }, [emailValue]);
+
+    useEffect(() => {
+        showWarning(
+            passwordValue.length == 0,
+            passwordValue.length < 8 && passwordValue.length > 0,
+            setShowPasswordLengthWarning
+        );
+        showWarning(
+            passwordValue.length == 0,
+            !validPassword && passwordValue.length > 0,
+            setShowPasswordWarning
+        );
+    }, [passwordValue]);
 
     return (
         <div className='container w-full h-screen flex flex-col justify-center items-center'>
@@ -75,16 +109,14 @@ const Page: NextPage = () => {
                             validateEmail(e.target.value);
                         }}
                         className={
-                            emailValue.length > 0 && !validEmail
+                            showEmailWarning
                                 ? 'border-red-600 focus-visible:outline-red-600 focus-visible:ring-red-300'
                                 : ''
                         }
                         required
                     />
                     <p className='text-red-500 mb-1'>
-                        {emailValue.length > 0 && !validEmail
-                            ? 'Invalid email address'
-                            : ''}
+                        {showEmailWarning ? 'Invalid email address' : ''}
                     </p>
 
                     <label htmlFor='password'>Password</label>
@@ -97,19 +129,19 @@ const Page: NextPage = () => {
                             validatePassword(e.target.value);
                         }}
                         className={
-                            passwordValue.length > 0 && !passwordsMatch
+                            showPasswordWarning || showPasswordLengthWarning
                                 ? 'border-red-600 focus-visible:outline-red-600 focus-visible:ring-red-300'
                                 : ''
                         }
                         required
                     />
                     <p className='text-red-500 mb-1'>
-                        {passwordValue.length < 7 && passwordValue.length > 0
+                        {showPasswordLengthWarning
                             ? 'Passwords has to be at least 8 characters long'
                             : ''}
                     </p>
                     <p className='text-red-500 mb-1'>
-                        {passwordValue.length > 0 && !validPassword
+                        {showPasswordWarning
                             ? 'Password must contain at least one uppercase, one lowercase and one numeric character'
                             : ''}
                     </p>
