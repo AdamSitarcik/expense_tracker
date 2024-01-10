@@ -62,7 +62,11 @@ app.post('/api/user', async (req, res) => {
 });
 
 app.patch('/api/user');
-app.delete('/api/user');
+
+app.delete('/api/clear-users', async (req, res) => {
+    const deletedUsers = await prisma.user.deleteMany();
+    res.json({ deletedUsers }).status(200);
+});
 
 // Expenses API
 app.get('/api/expense', async (req, res) => {
