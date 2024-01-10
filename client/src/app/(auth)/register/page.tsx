@@ -28,6 +28,7 @@ const Page: NextPage = () => {
         let regex = new RegExp(
             siteConfig.passwordRegex(siteConfig.passwordLength)
         );
+        
         if (password.length > 0) {
             setValidPassword(regex.test(password));
         } else setValidPassword(false);
