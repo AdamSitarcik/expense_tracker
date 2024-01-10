@@ -127,7 +127,7 @@ const Page: NextPage = () => {
                     />
                     <p className='text-red-500 mb-1'>
                         {showPasswordWarning
-                            ? 'Password must contain at least one uppercase, one lowercase and one numeric character and be at least 8 characters long'
+                            ? `Password must contain at least one uppercase, one lowercase and one numeric character and be at least ${siteConfig.passwordLength} characters long`
                             : ''}
                     </p>
 
