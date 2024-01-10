@@ -4,17 +4,13 @@ import { buttonVariants } from '@/components/button';
 import { HomeBtn } from '@/components/homeBtn';
 import { Logo } from '@/components/icons';
 import { siteConfig } from '@/config/site';
-import { cn, debounce } from '@/lib/utils';
+import { cn, showWarning } from '@/lib/utils';
 import type { NextPage } from 'next';
-import {
-    Dispatch,
-    SetStateAction,
-    useCallback,
-    useEffect,
-    useState,
-} from 'react';
+import { signIn } from 'next-auth/react';
+import { useCallback, useEffect, useState } from 'react';
 
 const Page: NextPage = () => {
+    const [isLoading, setIsLoading] = useState(false);
     const [emailValue, setEmailValue] = useState('');
     const [passwordValue, setPasswordValue] = useState('');
     const [confirmPasswordValue, setConfirmPasswordValue] = useState('');
@@ -28,7 +24,7 @@ const Page: NextPage = () => {
         let regex = new RegExp(
             siteConfig.passwordRegex(siteConfig.passwordLength)
         );
-        
+
         if (password.length > 0) {
             setValidPassword(regex.test(password));
         } else setValidPassword(false);
@@ -46,26 +42,10 @@ const Page: NextPage = () => {
     }, [passwordValue, confirmPasswordValue]);
 
     //function to delay displaying of warnings
-    const showWarning = useCallback(
-        debounce(
-            (
-                defaultCond: boolean,
-                mainCondition: boolean,
-                setter: Dispatch<SetStateAction<boolean>>
-            ) => {
-                if (defaultCond) {
-                    setter(false);
-                } else {
-                    setter(mainCondition);
-                }
-            },
-            siteConfig.warningDelay
-        ),
-        []
-    );
+    const showWarningMemo = useCallback(showWarning(), []);
 
     useEffect(() => {
-        showWarning(
+        showWarningMemo(
             emailValue.length == 0,
             emailValue.length > 0 && !validEmail,
             setShowEmailWarning
@@ -73,15 +53,31 @@ const Page: NextPage = () => {
     }, [emailValue]);
 
     useEffect(() => {
-        showWarning(
+        showWarningMemo(
             passwordValue.length == 0,
             !validPassword && passwordValue.length > 0,
             setShowPasswordWarning
         );
     }, [passwordValue]);
 
+    const handleSubmit = async () => {
+        setIsLoading(true);
+        if (validEmail && validPassword && passwordsMatch) {
+            const res = await signIn('credentials', {
+                email: emailValue,
+                password: passwordValue,
+            });
+
+            console.log(res);
+        }
+        setIsLoading(false);
+    };
+
     return (
-        <div className='container w-full h-screen flex flex-col justify-center items-center'>
+        <div
+            className='container w-full h-screen flex flex-col justify-center items-center'
+            suppressHydrationWarning
+        >
             <HomeBtn />
             <div className='mx-auto w-full sm:w-[400px] flex flex-col justify-center'>
                 <Logo className='mx-auto' />
@@ -154,12 +150,14 @@ const Page: NextPage = () => {
                     </p>
 
                     <button
+                        onClick={() => handleSubmit()}
                         className={cn(
                             buttonVariants(),
                             'w-full text-xl py-6 mt-1'
                         )}
                         disabled={
-                            !(validEmail && validPassword && passwordsMatch)
+                            !(validEmail && validPassword && passwordsMatch) ||
+                            isLoading
                         }
                     >
                         Create new account
