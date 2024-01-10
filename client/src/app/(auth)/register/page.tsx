@@ -3,6 +3,7 @@
 import { buttonVariants } from '@/components/button';
 import { HomeBtn } from '@/components/homeBtn';
 import { Logo } from '@/components/icons';
+import { siteConfig } from '@/config/site';
 import { cn, debounce } from '@/lib/utils';
 import type { NextPage } from 'next';
 import {
@@ -22,27 +23,21 @@ const Page: NextPage = () => {
     const [validEmail, setValidEmail] = useState(false);
     const [showEmailWarning, setShowEmailWarning] = useState(false);
     const [showPasswordWarning, setShowPasswordWarning] = useState(false);
-    const [showPasswordLengthWarning, setShowPasswordLengthWarning] =
-        useState(false);
 
     const validatePassword = (password: string) => {
-        if (password.length > 0)
-            setValidPassword(
-                /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/.test(
-                    password
-                )
-            );
-        else setValidPassword(false);
+        let regex = new RegExp(
+            siteConfig.passwordRegex(siteConfig.passwordLength)
+        );
+        if (password.length > 0) {
+            setValidPassword(regex.test(password));
+        } else setValidPassword(false);
     };
 
     const validateEmail = (email: string) => {
-        if (email.length > 0)
-            setValidEmail(
-                /^[a-zA-Z][a-zA-Z0-9._-]*@[a-zA-Z0-9._-]+\.[a-zA-Z]{2,5}$/.test(
-                    email
-                )
-            );
-        else setValidEmail(false);
+        let regex = new RegExp(siteConfig.emailRegex());
+        if (email.length > 0) {
+            setValidEmail(regex.test(email));
+        } else setValidEmail(false);
     };
 
     useEffect(() => {
@@ -63,7 +58,7 @@ const Page: NextPage = () => {
                     setter(mainCondition);
                 }
             },
-            1000
+            siteConfig.warningDelay
         ),
         []
     );
@@ -77,11 +72,6 @@ const Page: NextPage = () => {
     }, [emailValue]);
 
     useEffect(() => {
-        showWarning(
-            passwordValue.length == 0,
-            passwordValue.length < 8 && passwordValue.length > 0,
-            setShowPasswordLengthWarning
-        );
         showWarning(
             passwordValue.length == 0,
             !validPassword && passwordValue.length > 0,
@@ -129,20 +119,15 @@ const Page: NextPage = () => {
                             validatePassword(e.target.value);
                         }}
                         className={
-                            showPasswordWarning || showPasswordLengthWarning
+                            showPasswordWarning
                                 ? 'border-red-600 focus-visible:outline-red-600 focus-visible:ring-red-300'
                                 : ''
                         }
                         required
                     />
                     <p className='text-red-500 mb-1'>
-                        {showPasswordLengthWarning
-                            ? 'Passwords has to be at least 8 characters long'
-                            : ''}
-                    </p>
-                    <p className='text-red-500 mb-1'>
                         {showPasswordWarning
-                            ? 'Password must contain at least one uppercase, one lowercase and one numeric character'
+                            ? 'Password must contain at least one uppercase, one lowercase and one numeric character and be at least 8 characters long'
                             : ''}
                     </p>
 
