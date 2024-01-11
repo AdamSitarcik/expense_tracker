@@ -56,11 +56,15 @@ export const authOptions: NextAuthOptions = {
             return '/';
         },
         async jwt({ token, user }) {
-            const dbUser = await fetch(process.env.SERVER_URL + '/api/user', {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: token.email }),
-            });
+            const data = await fetch(
+                `${process.env.SERVER_URL}/api/user/${token.email}`,
+                {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                }
+            );
+
+            const dbUser = await data.json();
 
             if (!dbUser) {
                 token.id = user.id;
