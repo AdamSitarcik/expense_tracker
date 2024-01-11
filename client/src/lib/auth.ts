@@ -55,6 +55,31 @@ export const authOptions: NextAuthOptions = {
         async redirect() {
             return '/';
         },
+        async jwt({ token, user }) {
+            const dbUser = await fetch(process.env.SERVER_URL + '/api/user', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: token.email }),
+            });
+
+            if (!dbUser) {
+                token.id = user.id;
+                return token;
+            }
+
+            return {
+                id: dbUser.id,
+                email: dbUser.email,
+            };
+        },
+        async session({ token, session }) {
+            if (token) {
+                session.user.id = token.id;
+                session.user.email = token.email;
+            }
+
+            return session;
+        },
     },
     pages: {
         signIn: '/sign-in',
