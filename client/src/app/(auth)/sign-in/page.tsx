@@ -3,24 +3,33 @@
 import { buttonVariants } from '@/components/button';
 import { HomeBtn } from '@/components/homeBtn';
 import { Logo } from '@/components/icons';
-import { cn } from '@/lib/utils';
+import { siteConfig } from '@/config/site';
+import { cn, showWarning } from '@/lib/utils';
 import type { NextPage } from 'next';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const Page: NextPage = () => {
     const [emailValue, setEmailValue] = useState('');
     const [passwordValue, setPasswordValue] = useState('');
     const [validEmail, setValidEmail] = useState(false);
+    const [showEmailWarning, setShowEmailWarning] = useState(false);
 
     const validateEmail = (email: string) => {
-        if (email.length > 0)
-            setValidEmail(
-                /^[a-zA-Z][a-zA-Z0-9._-]*@[a-zA-Z0-9._-]+\.[a-zA-Z]{2,5}$/.test(
-                    email
-                )
-            );
-        else setValidEmail(false);
+        let regex = new RegExp(siteConfig.emailRegex());
+        if (email.length > 0) {
+            setValidEmail(regex.test(email));
+        } else setValidEmail(false);
     };
+
+    const showWarningMemo = useCallback(showWarning(), []);
+
+    useEffect(() => {
+        showWarningMemo(
+            emailValue.length == 0,
+            emailValue.length > 0 && !validEmail,
+            setShowEmailWarning
+        );
+    }, [emailValue]);
 
     return (
         <div className='container w-full h-screen flex flex-col justify-center items-center'>
@@ -42,16 +51,14 @@ const Page: NextPage = () => {
                             validateEmail(e.target.value);
                         }}
                         className={
-                            emailValue.length > 0 && !validEmail
+                            showEmailWarning
                                 ? 'border-red-600 focus-visible:outline-red-600 focus-visible:ring-red-300'
                                 : ''
                         }
                         required
                     />
                     <p className='text-red-500 mb-1'>
-                        {emailValue.length > 0 && !validEmail
-                            ? 'Invalid email address'
-                            : ''}
+                        {showEmailWarning ? 'Invalid email address' : ''}
                     </p>
 
                     <label htmlFor='password'>Password</label>
