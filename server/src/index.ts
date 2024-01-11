@@ -10,8 +10,8 @@ const prisma = new PrismaClient();
 app.use(express.json());
 
 // user
-app.get('/api/user', async (req, res) => {
-    const { email } = req.body;
+app.get('/api/user/:email', async (req, res) => {
+    const email = req.params.email;
 
     const user = await prisma.user.findUnique({
         include: { expenses: true },
