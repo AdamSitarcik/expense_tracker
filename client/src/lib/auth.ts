@@ -1,9 +1,11 @@
-import CredentialsProvider from 'next-auth/providers/credentials';
 import { NextAuthOptions } from 'next-auth';
-import bcrypt from 'bcrypt';
+import CredentialsProvider from 'next-auth/providers/credentials';
 
 export const authOptions: NextAuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,
+    session: {
+        strategy: 'jwt',
+    },
     providers: [
         CredentialsProvider({
             name: 'Credentials',
@@ -28,16 +30,13 @@ export const authOptions: NextAuthOptions = {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
-                                email,
-                                password: await bcrypt.hash(
-                                    password,
-                                    await bcrypt.genSalt(12)
-                                ),
+                                email: email,
+                                password: password,
                             }),
                         }
                     );
 
-                    const user = await res.json();
+                    const { user } = await res.json();
 
                     if (res.ok && user) {
                         return user;
@@ -48,9 +47,6 @@ export const authOptions: NextAuthOptions = {
             },
         }),
     ],
-    session: {
-        strategy: 'jwt',
-    },
     callbacks: {
         async redirect() {
             return '/';
@@ -64,17 +60,19 @@ export const authOptions: NextAuthOptions = {
                 }
             );
 
-            const dbUser = await data.json();
+            const { user: dbUser } = await data.json();
 
             if (!dbUser) {
                 token.id = user.id;
+                token.email = user.email;
+
                 return token;
             }
 
-            return {
-                id: dbUser.id,
-                email: dbUser.email,
-            };
+            token.id = dbUser.id;
+            token.email = dbUser.email;
+
+            return token;
         },
         async session({ token, session }) {
             if (token) {
