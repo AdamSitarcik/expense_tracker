@@ -6,9 +6,11 @@ import { Logo } from '@/components/icons';
 import { siteConfig } from '@/config/site';
 import { cn, showWarning } from '@/lib/utils';
 import type { NextPage } from 'next';
+import { signIn } from 'next-auth/react';
 import { useCallback, useEffect, useState } from 'react';
 
 const Page: NextPage = () => {
+    const [isLoading, setIsLoading] = useState(false);
     const [emailValue, setEmailValue] = useState('');
     const [passwordValue, setPasswordValue] = useState('');
     const [validEmail, setValidEmail] = useState(false);
@@ -30,6 +32,21 @@ const Page: NextPage = () => {
             setShowEmailWarning
         );
     }, [emailValue]);
+
+    const handleSubmit = async () => {
+        setIsLoading(true);
+        if (validEmail) {
+            const res = await signIn('credentials', {
+                email: emailValue,
+                password: passwordValue,
+                redirect: true,
+                callbackUrl: '/',
+            });
+
+            console.log(res);
+        }
+        setIsLoading(false);
+    };
 
     return (
         <div className='container w-full h-screen flex flex-col justify-center items-center'>
@@ -70,11 +87,17 @@ const Page: NextPage = () => {
                         required
                     />
                     <button
+                        onClick={() => handleSubmit()}
                         className={cn(
                             buttonVariants(),
                             'w-full text-xl py-6 mt-1'
                         )}
-                        disabled={!(passwordValue.length > 0 && validEmail)}
+                        disabled={
+                            !(
+                                (passwordValue.length > 0 && validEmail) ||
+                                isLoading
+                            )
+                        }
                     >
                         Sign in with email
                     </button>
