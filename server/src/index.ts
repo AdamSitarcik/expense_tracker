@@ -47,7 +47,13 @@ app.post('/api/user', async (req, res) => {
             }
         } else {
             const newUser = await prisma.user.create({
-                data: { email, password },
+                data: {
+                    email,
+                    password: await bcrypt.hash(
+                        password,
+                        await bcrypt.genSalt(12)
+                    ),
+                },
             });
 
             res.json({
