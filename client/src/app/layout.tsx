@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/navbar';
+import { Toaster } from 'react-hot-toast';
 
 export const metadata: Metadata = {
     title: 'Expenser',
@@ -26,6 +27,7 @@ export default function RootLayout({
         >
             <body className='min-h-screen  bg-background antialiased'>
                 <div className='container max-w-7xl h-full  items-center '>
+                    <Toaster />
                     {children}
                 </div>
             </body>

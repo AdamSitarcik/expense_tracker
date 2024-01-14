@@ -1,8 +1,9 @@
 'use client';
 
 import { cn } from '@/lib/utils';
+import { signOut } from 'next-auth/react';
+import toast from 'react-hot-toast';
 import { buttonVariants } from './button';
-import { signIn, signOut } from 'next-auth/react';
 
 export const LogoutBtn = () => {
     return (
@@ -12,7 +13,10 @@ export const LogoutBtn = () => {
                 'hidden sm:block w-26'
             )}
             onClick={() => {
-                signOut();
+                toast.success('Logged out!');
+                setTimeout(() => {
+                    signOut();
+                }, 2000);
             }}
         >
             Logout
