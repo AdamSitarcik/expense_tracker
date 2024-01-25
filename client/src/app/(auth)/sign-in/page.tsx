@@ -39,11 +39,8 @@ const Page: NextPage = () => {
             const res = await signIn('credentials', {
                 email: emailValue,
                 password: passwordValue,
-                redirect: true,
-                callbackUrl: '/',
+                redirect: false,
             });
-
-            console.log(res);
         }
         setIsLoading(false);
     };
