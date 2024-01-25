@@ -39,7 +39,6 @@ app.post('/api/user', async (req, res) => {
             if (validPassword) {
                 res.json({
                     message: 'User with this email already exists',
-                    user: userExists,
                     existingUser: true,
                 }).status(200);
             } else {
