@@ -36,14 +36,11 @@ const Page: NextPage = () => {
     const handleSubmit = async () => {
         setIsLoading(true);
         if (validEmail) {
-            const res = await signIn('credentials', {
+            await signIn('credentials', {
                 email: emailValue,
                 password: passwordValue,
-                redirect: true,
-                callbackUrl: '/',
+                redirect: false,
             });
-
-            console.log(res);
         }
         setIsLoading(false);
     };

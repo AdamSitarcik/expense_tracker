@@ -13,7 +13,7 @@ export const LogoutBtn = () => {
                 'hidden sm:block w-26'
             )}
             onClick={() => {
-                toast.success('Logged out!');
+                toast.success('Logging out!');
                 setTimeout(() => {
                     signOut();
                 }, 2000);
