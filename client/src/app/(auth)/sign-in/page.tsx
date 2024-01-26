@@ -36,7 +36,7 @@ const Page: NextPage = () => {
     const handleSubmit = async () => {
         setIsLoading(true);
         if (validEmail) {
-            const res = await signIn('credentials', {
+            await signIn('credentials', {
                 email: emailValue,
                 password: passwordValue,
                 redirect: false,

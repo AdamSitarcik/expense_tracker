@@ -7,7 +7,20 @@ import { siteConfig } from '@/config/site';
 import { cn, showWarning } from '@/lib/utils';
 import type { NextPage } from 'next';
 import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+
+interface ResponseType extends Response {
+    status: number;
+    message?: string;
+    user?: {
+        id: string;
+        email: string;
+        password: string;
+    };
+    existingUser?: boolean;
+}
 
 const Page: NextPage = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -19,6 +32,7 @@ const Page: NextPage = () => {
     const [validEmail, setValidEmail] = useState(false);
     const [showEmailWarning, setShowEmailWarning] = useState(false);
     const [showPasswordWarning, setShowPasswordWarning] = useState(false);
+    const router = useRouter();
 
     const validatePassword = (password: string) => {
         let regex = new RegExp(
@@ -63,10 +77,31 @@ const Page: NextPage = () => {
     const handleSubmit = async () => {
         setIsLoading(true);
         if (validEmail && validPassword && passwordsMatch) {
-            const res = await signIn('credentials', {
+            const res: ResponseType = await fetch(
+                process.env.SERVER_URL + '/api/user',
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: emailValue,
+                    }),
+                }
+            );
+
+            if (res.existingUser) {
+                console.log('EXISTING USER');
+
+                toast.error(
+                    'Account with this email already exists. Redirecting...'
+                );
+                setTimeout(() => router.push('/sign-in'), 2000);
+                return;
+            }
+
+            await signIn('credentials', {
                 email: emailValue,
                 password: passwordValue,
-                redirect: false,
+                redirect: true,
             });
         }
         setIsLoading(false);

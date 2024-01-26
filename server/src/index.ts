@@ -28,6 +28,9 @@ app.get('/api/all-users', async (req, res) => {
 app.post('/api/user', async (req, res) => {
     const { email, password } = req.body;
 
+    console.log('Authorize');
+    
+
     try {
         const userExists = await prisma.user.findUnique({ where: { email } });
 
@@ -65,6 +68,50 @@ app.post('/api/user', async (req, res) => {
         console.log(error);
     }
 });
+
+// app.post('/api/user/signin', async (req, res) => {
+//     const { email, password } = req.body;
+
+//     console.log('Authorize');
+    
+
+//     try {
+//         const userExists = await prisma.user.findUnique({ where: { email } });
+
+//         if (userExists) {
+//             const validPassword = await bcrypt.compare(
+//                 password,
+//                 userExists.password
+//             );
+//             if (validPassword) {
+//                 res.json({
+//                     message: 'User with this email already exists',
+//                     existingUser: true,
+//                 }).status(200);
+//             } else {
+//                 res.json('Invalid credentials').status(401);
+//             }
+//         } else {
+//             const newUser = await prisma.user.create({
+//                 data: {
+//                     email,
+//                     password: await bcrypt.hash(
+//                         password,
+//                         await bcrypt.genSalt(12)
+//                     ),
+//                 },
+//             });
+
+//             res.json({
+//                 message: 'New user created',
+//                 user: newUser,
+//                 existingUser: false,
+//             }).status(201);
+//         }
+//     } catch (error) {
+//         console.log(error);
+//     }
+// });
 
 app.patch('/api/user');
 
