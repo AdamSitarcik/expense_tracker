@@ -33,6 +33,7 @@ const Page: NextPage = () => {
     const [showEmailWarning, setShowEmailWarning] = useState(false);
     const [showPasswordWarning, setShowPasswordWarning] = useState(false);
     const router = useRouter();
+    const [test, setTest] = useState('default');
 
     const validatePassword = (password: string) => {
         let regex = new RegExp(
@@ -87,22 +88,30 @@ const Page: NextPage = () => {
                     }),
                 }
             );
+            setTimeout(() => {
+                setTest(res.status.toString());
+                // router.push('/sign-in');
+            }, 2000);
 
             if (res.existingUser) {
-                console.log('EXISTING USER');
+                setTest(res.existingUser.toString());
 
-                toast.error(
+                toast.success(
                     'Account with this email already exists. Redirecting...'
                 );
-                setTimeout(() => router.push('/sign-in'), 2000);
+
+                setTimeout(() => {
+                    setTest(res.existingUser.toString());
+                    // router.push('/sign-in');
+                }, 2000);
                 return;
             }
 
-            await signIn('credentials', {
-                email: emailValue,
-                password: passwordValue,
-                redirect: true,
-            });
+            // await signIn('credentials', {
+            //     email: emailValue,
+            //     password: passwordValue,
+            //     redirect: true,
+            // });
         }
         setIsLoading(false);
     };
@@ -204,6 +213,7 @@ const Page: NextPage = () => {
                 >
                     Already have an account? Sign in
                 </a>
+                <p>{test}</p>
             </div>
         </div>
     );
