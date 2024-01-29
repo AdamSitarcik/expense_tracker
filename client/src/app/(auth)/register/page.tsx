@@ -11,15 +11,13 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
-interface ResponseType extends Response {
-    status: number;
-    message?: string;
+interface GetResponseType extends Response {
     user?: {
         id: string;
         email: string;
         password: string;
+        expenses: any[];
     };
-    existingUser?: boolean;
 }
 
 const Page: NextPage = () => {
@@ -33,7 +31,7 @@ const Page: NextPage = () => {
     const [showEmailWarning, setShowEmailWarning] = useState(false);
     const [showPasswordWarning, setShowPasswordWarning] = useState(false);
     const router = useRouter();
-    const [test, setTest] = useState('default');
+    const [test, setTest] = useState<any>('default');
 
     const validatePassword = (password: string) => {
         let regex = new RegExp(
@@ -78,33 +76,27 @@ const Page: NextPage = () => {
     const handleSubmit = async () => {
         setIsLoading(true);
         if (validEmail && validPassword && passwordsMatch) {
-            const res: ResponseType = await fetch(
-                process.env.SERVER_URL + '/api/user',
+            const res: GetResponseType = await fetch(
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/${emailValue}`,
                 {
-                    method: 'POST',
+                    method: 'GET',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email: emailValue,
-                    }),
                 }
             );
-            setTimeout(() => {
-                setTest(res.status.toString());
-                // router.push('/sign-in');
-            }, 2000);
 
-            if (res.existingUser) {
-                setTest(res.existingUser.toString());
+            console.log(res);
+
+            if (res.user) {
+                setTest(res.user.email);
 
                 toast.success(
                     'Account with this email already exists. Redirecting...'
                 );
 
-                setTimeout(() => {
-                    setTest(res.existingUser.toString());
-                    // router.push('/sign-in');
-                }, 2000);
-                return;
+                // setTimeout(() => {
+                //     setTest(res.existingUser.toString());
+                //     // router.push('/sign-in');
+                // }, 2000);
             }
 
             // await signIn('credentials', {

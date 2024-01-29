@@ -23,7 +23,7 @@ export const authOptions: NextAuthOptions = {
                     password: string;
                 };
 
-                const res = await fetch(process.env.SERVER_URL + '/api/user', {
+                const res = await fetch(process.env.NEXT_PUBLIC_SERVER_URL + '/api/user', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -46,7 +46,7 @@ export const authOptions: NextAuthOptions = {
         },
         async jwt({ token, user }) {
             const data = await fetch(
-                `${process.env.SERVER_URL}/api/user/${token.email}`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/${token.email}`,
                 {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' },
