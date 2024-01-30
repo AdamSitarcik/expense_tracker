@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
-interface GetResponseType extends Response {
+interface GetResponseType {
     user?: {
         id: string;
         email: string;
@@ -31,7 +31,6 @@ const Page: NextPage = () => {
     const [showEmailWarning, setShowEmailWarning] = useState(false);
     const [showPasswordWarning, setShowPasswordWarning] = useState(false);
     const router = useRouter();
-    const [test, setTest] = useState<any>('default');
 
     const validatePassword = (password: string) => {
         let regex = new RegExp(
@@ -76,7 +75,7 @@ const Page: NextPage = () => {
     const handleSubmit = async () => {
         setIsLoading(true);
         if (validEmail && validPassword && passwordsMatch) {
-            const res: GetResponseType = await fetch(
+            const res = await fetch(
                 `${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/${emailValue}`,
                 {
                     method: 'GET',
@@ -84,19 +83,16 @@ const Page: NextPage = () => {
                 }
             );
 
-            console.log(res);
+            const data: GetResponseType = await res.json();
 
-            if (res.user) {
-                setTest(res.user.email);
-
+            if (data.user) {
                 toast.success(
                     'Account with this email already exists. Redirecting...'
                 );
 
-                // setTimeout(() => {
-                //     setTest(res.existingUser.toString());
-                //     // router.push('/sign-in');
-                // }, 2000);
+                setTimeout(() => {
+                    router.push('/sign-in');
+                }, 2000);
             }
 
             // await signIn('credentials', {
@@ -205,7 +201,6 @@ const Page: NextPage = () => {
                 >
                     Already have an account? Sign in
                 </a>
-                <p>{test}</p>
             </div>
         </div>
     );
