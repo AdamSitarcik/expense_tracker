@@ -6,7 +6,7 @@ import { Logo } from '@/components/icons';
 import { siteConfig } from '@/config/site';
 import { cn, showWarning } from '@/lib/utils';
 import type { NextPage } from 'next';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -86,21 +86,26 @@ const Page: NextPage = () => {
             const data: GetResponseType = await res.json();
 
             if (data.user) {
-                toast.success(
-                    'Account with this email already exists. Redirecting...'
+                toast.error(
+                    'Account with this email already exists. Redirecting...',
+                    { duration: 2000 }
                 );
 
                 setTimeout(() => {
                     router.push('/sign-in');
                 }, 2000);
+
+                return;
             }
 
-            // await signIn('credentials', {
-            //     email: emailValue,
-            //     password: passwordValue,
-            //     redirect: true,
-            // });
+            await signIn('credentials', {
+                email: emailValue,
+                password: passwordValue,
+                action: 'register',
+                redirect: true,
+            });
         }
+
         setIsLoading(false);
     };
 

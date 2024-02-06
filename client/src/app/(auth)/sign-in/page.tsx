@@ -8,6 +8,7 @@ import { cn, showWarning } from '@/lib/utils';
 import type { NextPage } from 'next';
 import { signIn } from 'next-auth/react';
 import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const Page: NextPage = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -15,6 +16,7 @@ const Page: NextPage = () => {
     const [passwordValue, setPasswordValue] = useState('');
     const [validEmail, setValidEmail] = useState(false);
     const [showEmailWarning, setShowEmailWarning] = useState(false);
+    const router = useRouter();
 
     const validateEmail = (email: string) => {
         let regex = new RegExp(siteConfig.emailRegex());
@@ -35,11 +37,13 @@ const Page: NextPage = () => {
 
     const handleSubmit = async () => {
         setIsLoading(true);
+
         if (validEmail) {
             await signIn('credentials', {
                 email: emailValue,
                 password: passwordValue,
-                redirect: false,
+                action: 'sign-in',
+                redirect: true,
             });
         }
         setIsLoading(false);

@@ -18,24 +18,30 @@ export const authOptions: NextAuthOptions = {
                 password: { label: 'password', type: 'password' },
             },
             async authorize(credentials, req) {
-                const { email, password } = credentials as {
+                const { email, password, action } = credentials as {
                     email: string;
                     password: string;
+                    action: 'register' | 'sign-in';
                 };
 
-                const res = await fetch(process.env.NEXT_PUBLIC_SERVER_URL + '/api/user', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email: email,
-                        password: password,
-                    }),
-                });
+                console.log('FE AUTHORIZE', action);
 
-                const { user } = await res.json();
+                const res = await fetch(
+                    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/${action}`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: email,
+                            password: password,
+                        }),
+                    }
+                );
 
-                if (res.ok && user) {
-                    return user;
+                const data = await res.json()
+
+                if (res.ok && data.user) {
+                    return data.user;
                 } else return null;
             },
         }),
