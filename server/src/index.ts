@@ -28,27 +28,16 @@ app.get('/api/all-users', async (req, res) => {
     res.json({ allUsers });
 });
 
-app.post('/api/user', async (req, res) => {
+app.post('/api/user/register', async (req, res) => {
     const { email, password } = req.body;
-
-    console.log('Authorize');
 
     try {
         const userExists = await prisma.user.findUnique({ where: { email } });
 
         if (userExists) {
-            const validPassword = await bcrypt.compare(
-                password,
-                userExists.password
-            );
-            if (validPassword) {
-                res.json({
-                    message: 'User with this email already exists',
-                    existingUser: true,
-                }).status(200);
-            } else {
-                res.json('Invalid credentials').status(401);
-            }
+            res.json({
+                message: 'User with this email already exists',
+            }).status(409);
         } else {
             const newUser = await prisma.user.create({
                 data: {
@@ -63,7 +52,6 @@ app.post('/api/user', async (req, res) => {
             res.json({
                 message: 'New user created',
                 user: newUser,
-                existingUser: false,
             }).status(201);
         }
     } catch (error) {
@@ -71,48 +59,37 @@ app.post('/api/user', async (req, res) => {
     }
 });
 
-// app.post('/api/user/signin', async (req, res) => {
-//     const { email, password } = req.body;
+app.post('/api/user/sign-in', async (req, res) => {
+    const { email, password } = req.body;
 
-//     console.log('Authorize');
+    try {
+        const userExists = await prisma.user.findUnique({ where: { email } });
 
-//     try {
-//         const userExists = await prisma.user.findUnique({ where: { email } });
+        if (userExists) {
+            const validPassword = await bcrypt.compare(
+                password,
+                userExists.password
+            );
 
-//         if (userExists) {
-//             const validPassword = await bcrypt.compare(
-//                 password,
-//                 userExists.password
-//             );
-//             if (validPassword) {
-//                 res.json({
-//                     message: 'User with this email already exists',
-//                     existingUser: true,
-//                 }).status(200);
-//             } else {
-//                 res.json('Invalid credentials').status(401);
-//             }
-//         } else {
-//             const newUser = await prisma.user.create({
-//                 data: {
-//                     email,
-//                     password: await bcrypt.hash(
-//                         password,
-//                         await bcrypt.genSalt(12)
-//                     ),
-//                 },
-//             });
-
-//             res.json({
-//                 message: 'New user created',
-//                 user: newUser,
-//                 existingUser: false,
-//             }).status(201);
-//         }
-//     } catch (error) {
-//         console.log(error);
-//     }
-// });
+            if (validPassword) {
+                res.json({
+                    message: 'User authorized',
+                    user: userExists,
+                    existingUser: true,
+                }).status(200);
+            } else {
+                res.json('Invalid credentials').status(401);
+            }
+        } else {
+            res.json({
+                message: 'User with this email not found',
+                existingUser: false,
+            }).status(404);
+        }
+    } catch (error) {
+        console.log(error);
+    }
+});
 
 app.patch('/api/user');
 
